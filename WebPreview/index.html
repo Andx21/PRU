@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tower Defense Lite — bản chơi thử</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0b1512;
+    color: #f2e9d8;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #stage { position: relative; box-shadow: 0 0 60px #000; --ui: 1; }
+  canvas { display: block; cursor: crosshair; }
+
+  /* ── Thanh thông tin trên cùng ─────────────────────────────── */
+  #hud {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; gap: calc(22px * var(--ui));
+    padding: calc(10px * var(--ui)) calc(16px * var(--ui));
+    background: linear-gradient(#000c, #0000);
+    pointer-events: none;
+    font-size: calc(20px * var(--ui)); font-weight: 700;
+    text-shadow: 0 2px 4px #000;
+  }
+  #hud .stat { display: flex; align-items: center; gap: 7px; }
+  #hud img { width: calc(28px * var(--ui)); height: calc(28px * var(--ui)); }
+  #wave { margin-left: auto; margin-right: 8px; font-size: calc(18px * var(--ui)); }
+  #pauseBtn { pointer-events: auto; cursor: pointer; width: calc(34px * var(--ui)); height: calc(34px * var(--ui)); }
+  #pauseBtn:hover { filter: brightness(1.3); }
+
+  /* ── Shop dưới đáy ─────────────────────────────────────────── */
+  #shop {
+    position: absolute; bottom: calc(10px * var(--ui)); left: 50%; transform: translateX(-50%);
+    display: flex; gap: calc(12px * var(--ui));
+  }
+  .card {
+    width: calc(118px * var(--ui)); padding: calc(8px * var(--ui)) calc(6px * var(--ui)) calc(6px * var(--ui));
+    background: #2b1c12ee;
+    border: 3px solid #6b4a2f; border-radius: 12px;
+    text-align: center; cursor: pointer;
+    transition: transform .08s, border-color .08s;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card.sel { border-color: #7ee08a; background: #24331fee; }
+  .card.poor { opacity: .45; }
+  .card img.tw { width: calc(46px * var(--ui)); height: calc(46px * var(--ui)); object-fit: contain; }
+  .card .nm { font-size: calc(12px * var(--ui)); margin-top: 2px; }
+  .card .cost { font-size: calc(14px * var(--ui)); font-weight: 700; color: #ffd35c; }
+  .card .info { font-size: calc(10px * var(--ui)); color: #b9a894; line-height: 1.25; margin-top: 2px; }
+
+  /* ── Các bảng phủ ──────────────────────────────────────────── */
+  .overlay {
+    position: absolute; inset: 0;
+    background: #000a;
+    display: none; align-items: center; justify-content: center;
+  }
+  .overlay.on { display: flex; }
+  .panel {
+    min-width: 340px; padding: 26px 30px;
+    background: #2b1c12; border: 4px solid #6b4a2f; border-radius: 16px;
+    text-align: center;
+  }
+  .panel h2 { font-size: 30px; margin-bottom: 6px; }
+  .panel p { color: #c9b8a2; margin-bottom: 16px; font-size: 15px; }
+  .panel button {
+    display: block; width: 100%; margin: 8px 0; padding: 11px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    background: #6b4a2f; color: #f2e9d8;
+    border: 2px solid #8a6340; border-radius: 9px;
+  }
+  .panel button:hover { background: #83593a; }
+  .row { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+  .row label { width: 92px; text-align: left; font-size: 14px; }
+  .row input { flex: 1; }
+  .row span { width: 44px; font-size: 13px; color: #c9b8a2; }
+
+  #hint {
+    position: absolute; bottom: calc(122px * var(--ui)); left: 50%; transform: translateX(-50%);
+    font-size: calc(13px * var(--ui)); white-space: nowrap; color: #d8c9b0; background: #000a;
+    padding: 5px 14px; border-radius: 20px; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+
+  <div id="hud">
+    <div class="stat"><img src="assets/Icon_Heart.png" alt=""><span id="lives">20</span></div>
+    <div class="stat"><img src="assets/Icon_Coin.png" alt=""><span id="coins">150</span></div>
+    <div id="wave">Chuẩn bị…</div>
+    <img id="pauseBtn" src="assets/Icon_Pause.png" alt="Tạm dừng" title="Tạm dừng (Esc)">
+  </div>
+
+  <div id="hint">Chọn tháp ở dưới rồi bấm vào đế đá để xây — chuột phải để bỏ chọn</div>
+  <div id="shop"></div>
+
+  <div class="overlay" id="pauseOv">
+    <div class="panel">
+      <h2>Tạm dừng</h2>
+      <button data-act="resume">Tiếp tục</button>
+      <button data-act="restart">Chơi lại</button>
+      <button data-act="settings">Cài đặt</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="setOv">
+    <div class="panel">
+      <h2>Cài đặt</h2>
+      <div class="row">
+        <label>Nhạc nền</label><input type="range" id="volMusic" min="0" max="100" value="40"><span id="volMusicV">40%</span>
+      </div>
+      <div class="row">
+        <label>Hiệu ứng</label><input type="range" id="volSfx" min="0" max="100" value="70"><span id="volSfxV">70%</span>
+      </div>
+      <button data-act="closeSettings">Đóng</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="endOv">
+    <div class="panel">
+      <h2 id="endTitle">—</h2>
+      <p id="endMsg">—</p>
+      <button data-act="restart">Chơi lại</button>
+    </div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

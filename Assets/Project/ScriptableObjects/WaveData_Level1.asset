@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db825e93d5c195a458a4acf340ce3ff3, type: 3}
+  m_Name: WaveData_Level1
+  m_EditorClassIdentifier: Assembly-CSharp::WaveData
+  waves:
+  - waveName: "\u0110\u1EE3t 1 \u2014 d\xF2 \u0111\u01B0\u1EDDng"
+    delayBeforeWave: 3
+    entries:
+    - enemyPrefab: {fileID: 2023623282085254901, guid: d67f6261b6f5f4648a9e50cb7f2866b7, type: 3}
+      count: 6
+      spawnInterval: 0.9
+  - waveName: "\u0110\u1EE3t 2 \u2014 \u0111\xF4ng h\u01A1n"
+    delayBeforeWave: 8
+    entries:
+    - enemyPrefab: {fileID: 2023623282085254901, guid: d67f6261b6f5f4648a9e50cb7f2866b7, type: 3}
+      count: 10
+      spawnInterval: 0.7
+  - waveName: "\u0110\u1EE3t 3 \u2014 c\xF3 Orc"
+    delayBeforeWave: 10
+    entries:
+    - enemyPrefab: {fileID: 2023623282085254901, guid: d67f6261b6f5f4648a9e50cb7f2866b7, type: 3}
+      count: 6
+      spawnInterval: 0.6
+    - enemyPrefab: {fileID: 7066270899307559654, guid: 9eea157e539a5c949bc37ef7f8dfcbd2, type: 3}
+      count: 5
+      spawnInterval: 1
+  - waveName: "\u0110\u1EE3t 4 \u2014 Orc tr\xE0n"
+    delayBeforeWave: 12
+    entries:
+    - enemyPrefab: {fileID: 7066270899307559654, guid: 9eea157e539a5c949bc37ef7f8dfcbd2, type: 3}
+      count: 12
+      spawnInterval: 0.7
+  - waveName: "\u0110\u1EE3t 5 \u2014 BOSS"
+    delayBeforeWave: 14
+    entries:
+    - enemyPrefab: {fileID: 7066270899307559654, guid: 9eea157e539a5c949bc37ef7f8dfcbd2, type: 3}
+      count: 8
+      spawnInterval: 0.6
+    - enemyPrefab: {fileID: 1738738038922207641, guid: 131b37306fb85454385d012f4781eddc, type: 3}
+      count: 1
+      spawnInterval: 1
